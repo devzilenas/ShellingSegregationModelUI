@@ -32,8 +32,13 @@ public class Application
 {
 	JFrame        mainFrame    = null;
 	JLabel        pictureLabel = null;
-	public static final Dimension PICTURE_PREFERRED_DIM = new Dimension(100, 100);
+	public static final Dimension PICTURE_PREFERRED_DIM = new Dimension(150, 150);
 
+	/**
+	 * Dimension the application was run with.
+	 */
+	public static Dimension dimension = null;
+	public static double    threshold = 0.0 ;
 	ShellingSegregationModel ssm = null;
 
 	/**
@@ -64,10 +69,30 @@ public class Application
 		return pictureLabel;
 	}
 
-	public Dimension getPicturePreferredDimension()
+	public static Dimension getPicturePreferredDimension()
 	{
 		return PICTURE_PREFERRED_DIM;
 	}
+
+	public static void setDimension(Dimension dim)
+	{
+		dimension = dim;
+	}
+
+	public static Dimension getDimension()
+	{
+		return dimension;
+	}
+
+	public static void setThreshold(double thr)
+	{
+		threshold = thr;
+	}
+
+	public static double getThreshold()
+	{
+		return threshold;
+	} 
 
 	public void setShellingSegregationModel(ShellingSegregationModel ssm) 
 	{ 
@@ -118,24 +143,25 @@ public class Application
 	/**
 	 * Constructor.
 	 *
-	 * @param width  Width  of the image.
-	 * @param height Height of the image.
+	 * @param dimension of the image.
 	 */
 	public Application()
 	{
 		setPicture(
 				new BufferedImage(
-					(int) getPicturePreferredDimension().getWidth(), 
-					(int) getPicturePreferredDimension().getHeight(),
+					(int) getDimension().getWidth(), 
+					(int) getDimension().getHeight(),
 					BufferedImage.TYPE_INT_RGB));
+
 		this.ssm = createShellingSegregationModel();
 	}
 
 	public ShellingSegregationModel createShellingSegregationModel()
 	{
 		return new ShellingSegregationModel(
-				(int) PICTURE_PREFERRED_DIM.getWidth(),
-				(int) PICTURE_PREFERRED_DIM.getHeight());
+				getThreshold(),
+				(int)getDimension().getWidth(), 
+				(int)getDimension().getHeight());
 	}
 
 	public void createAndShowMainFrame()
@@ -281,6 +307,7 @@ public class Application
 		JButton b2 = getButtonFactory().createButton("Reset");
 		b2.setActionCommand("reset");
 		c = new GridBagConstraints();
+		c.anchor = GridBagConstraints.PAGE_START;
 		c.gridx = 1;
 		c.gridy = 1;
 		c.insets = new Insets(10,10,10,10);
@@ -313,7 +340,20 @@ public class Application
 	}
 
 	public static void main(String[] args)
-	{
+	{ 
+		if (3 == args.length)
+		{
+			setThreshold(Double.valueOf(args[0]));
+			setDimension(
+					new Dimension(
+						Integer.valueOf(args[1]),
+						Integer.valueOf(args[2])));
+		}
+		else
+		{
+			setThreshold(ShellingSegregationModel.THRESHOLD);
+			setDimension(getPicturePreferredDimension());
+		}
 		javax.swing.SwingUtilities.invokeLater( new Runnable()
 		{
 			public void run()

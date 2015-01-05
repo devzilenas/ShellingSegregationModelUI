@@ -22,10 +22,10 @@ public class ShellingSegregationModel
 	/**
 	 * Number of neighbors possible.
 	 */
-	public static final int NEIGHBORS = 8;
-      
-    public static final double THRESHOLD = 0.50;        
+	public static final int    NEIGHBORS = 8;
+    public static final double THRESHOLD = 0.26;        
     
+	public double threshold = THRESHOLD;
     public int iteration;
 
     public void setField(Grid<Element> field)
@@ -48,6 +48,16 @@ public class ShellingSegregationModel
         return temporary;
     }
     
+	public void setThreshold(double threshold)
+	{
+		this.threshold = threshold;
+	}
+
+	public double getThreshold()
+	{
+		return threshold;
+	}
+
     public void setIteration(int iteration)
     {
         this.iteration = iteration;
@@ -63,13 +73,9 @@ public class ShellingSegregationModel
 		return NEIGHBORS; 
 	}
 
-    public double getThreshold()
-    {
-        return THRESHOLD;   
-    }
-
-    public ShellingSegregationModel(int width, int height)
+    public ShellingSegregationModel(double threshold, int width, int height)
     {    
+		this.threshold = threshold;
 		field = new Grid(width, height);
 		/**
 		 * Fill with random values.
@@ -125,7 +131,7 @@ public class ShellingSegregationModel
             {
                 for (int x = 0; x < getField().getWidth(); x++)
                 {
-                    if (!isHappy(x,y))
+                    if (!Element.NULL.equals(getField().get(x,y)) && !isHappy(x,y))
                     {
                         swap(x,y);
                     }
@@ -138,18 +144,14 @@ public class ShellingSegregationModel
 
     /**
 	 * Swaps with empty random from temporary.
+	 *
+	 * @return true if swap occured
 	 */
     void swap(int i, int j)
     {
-        Random  random = new Random();
-		Element temp   = getTemporary().get(i,j);
-
+		Element temp = getTemporary().get(i,j);
+		getTemporary().put(getTemporary().randomIndex(Element.NULL), temp);
 		getTemporary().put(i, j, Element.NULL);
-
-		List<Integer> indexes = getTemporary().getIndexes(Element.NULL);
-
-		int index = indexes.get(random.nextInt(indexes.size()));
-		getTemporary().put(index, temp);
     }
 
     boolean isHappy(int x, int y)
